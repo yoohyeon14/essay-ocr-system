@@ -102,27 +102,30 @@ def get_sheets_client():
             'https://www.googleapis.com/auth/drive'
         ]
         
+        # spreadsheet_id: 환경변수 또는 Streamlit secrets
         spreadsheet_id = os.getenv("GOOGLE_SPREADSHEET_ID")
-        
-        # Streamlit Cloud secrets 또는 환경변수에서 가져오기
         if not spreadsheet_id and hasattr(st, 'secrets'):
             spreadsheet_id = st.secrets.get("GOOGLE_SPREADSHEET_ID")
         
         if not spreadsheet_id:
             return None, "GOOGLE_SPREADSHEET_ID 환경변수 필요"
         
-        # credentials 처리 (파일 또는 JSON 문자열)
+        # credentials 처리
         credentials_path = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "credentials.json")
         
         if Path(credentials_path).exists():
             # 로컬: 파일에서 로드
             creds = Credentials.from_service_account_file(credentials_path, scopes=SCOPES)
+        elif hasattr(st, 'secrets') and "GOOGLE_SERVICE_ACCOUNT" in st.secrets:
+            # Streamlit Cloud: secrets에서 섹션으로 로드
+            service_account_info = dict(st.secrets["GOOGLE_SERVICE_ACCOUNT"])
+            creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
         elif hasattr(st, 'secrets') and "GOOGLE_SERVICE_ACCOUNT_JSON" in st.secrets:
-            # Streamlit Cloud: secrets에서 로드
+            # Streamlit Cloud: JSON 문자열로 로드
             service_account_info = json.loads(st.secrets["GOOGLE_SERVICE_ACCOUNT_JSON"])
             creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
         else:
-            return None, "credentials.json 파일 또는 GOOGLE_SERVICE_ACCOUNT_JSON 필요"
+            return None, "credentials.json 파일 또는 GOOGLE_SERVICE_ACCOUNT 필요"
         
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key(spreadsheet_id)
