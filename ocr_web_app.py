@@ -27,7 +27,7 @@ load_dotenv()
 # ============================================================
 
 st.set_page_config(
-    page_title="논술 OCR 시스템",
+    page_title="박기호논술 OCR 시스템",
     page_icon="📝",
     layout="wide"
 )
@@ -535,6 +535,11 @@ OCR 텍스트에 오류가 있을 수 있으니, 이미지를 직접 보면서 �
    - 이미지에 없는 내용 추가 금지
    - 문장 지어내기 금지
 
+5. 출력 형식
+    - 문장이 자연스럽게 이어지도록 줄바꿈 정리
+    - 한 문장이 여러 줄로 끊어지지 않게 연결
+    - 문단 구분은 유지(새로운 줄에서 시작)
+
 {context_text}
 
 <OCR 텍스트 (참고용)>
@@ -849,7 +854,7 @@ def process_pdf(pdf_bytes: bytes, spreadsheet, lesson: int) -> List[Dict]:
 # ============================================================
 
 def main():
-    st.title("📝 논술 OCR 시스템")
+    st.title("📝 박기호논술 OCR 시스템")
     st.caption("PDF 업로드 → 헤더 자동 인식 → OCR → Google Sheets 저장")
     
     # -------------------- 사이드바: 연결 상태 --------------------
